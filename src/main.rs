@@ -16,6 +16,22 @@ struct Renderable {
     bg: RGB,
 }
 
+#[derive(Component)]
+struct LeftMover {}
+
+struct LeftWalker {}
+
+impl<'a> System<'a> for LeftWalker {
+    type SystemData = (ReadStorage<'a, LeftMover>, WriteStorage<'a, Position>);
+
+    fn run(&mut self, (lefty, mut pos) : Self::SystemData) {
+        for (_lefty, pos) in (&lefty, &mut pos).join() {
+            pos.x -= 1;
+            if pos.x < 0 { pos.x = 79 ;}
+        }
+    }
+}
+
 // impl Component for Position {
 //     type Storage = VecStorage<Self>;
 // }
@@ -44,16 +60,17 @@ fn main() -> rltk::BError {
     //look at the types and assign storage
     gs.ecs.register::<Position>();
     gs.ecs.register::<Renderable>();
-    
+    gs.ecs.register::<LeftMover>();
 
     gs.ecs
         .create_entity()
-        .with(Position { x: 40 , y: 25 })
+        .with(Position { x: 40, y: 25 })
         .with(Renderable {
             glyph: rltk::to_cp437('@'),
             fg: RGB::named(rltk::YELLOW),
             bg: RGB::named(rltk::BLACK),
         })
+        .with(LeftMover {})
         .build();
 
     // create entity with position and render with @ symbol in yellow on black
