@@ -36,6 +36,7 @@ impl GameState for State {
     fn tick(&mut self, ctx: &mut Rltk) {
         ctx.cls();
         self.run_systems();
+        player_input(self, ctx);
         //ask ecs for read-access to read-only containers
         let positions = self.ecs.read_storage::<Position>();
         let renderables = self.ecs.read_storage::<Renderable>();
@@ -51,8 +52,8 @@ let mut positions = ecs.write_storage::<Position>();
 let mut players = ecs.write_storage::<Player>();
 
     for (_player, pos) in (&mut players, &mut positions).join() {
-        pos.x = min(79, max(0, pos.y + delta_x));
-        pos.y = min(49, max(0, pos.y + delta_y));
+        pos.x = (pos.x + delta_x).clamp(0, 79);
+        pos.y = (pos.y + delta_y).clamp(0, 49);
     } 
 }
 
