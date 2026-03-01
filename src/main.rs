@@ -2,6 +2,9 @@ use rltk::{GameState, RGB, Rltk, VirtualKeyCode};
 use specs::prelude::*;
 use specs_derive::Component;
 
+mod map;
+pub use map::*;
+
 #[derive(Component)]
 struct Position {
     x: i32,
@@ -62,6 +65,8 @@ fn new_map() -> Vec<TileType> {
     }
     map
 }
+
+
 
 fn draw_map(map: &[TileType], ctx: &mut Rltk) {
     let mut y = 0;
