@@ -49,7 +49,6 @@ fn new_map() -> Vec<TileType> {
         map[xy_idx(79, y)] = TileType::Wall;
     }
 
-
     // splat some walls
     let mut rng = rltk::RandomNumberGenerator::new();
 
@@ -73,10 +72,22 @@ fn draw_map(map: &[TileType], ctx: &mut Rltk) {
         // render a tile depending upon the tile type
         match tile {
             TileType::Floor => {
-                ctx.set(x,y, RGB::from_f32(0.5, 0.5, 0.5), RGB::from_f32(0., 0., 0.,), rltk::to_cp437('.'));
+                ctx.set(
+                    x,
+                    y,
+                    RGB::from_f32(0.5, 0.5, 0.5),
+                    RGB::from_f32(0., 0., 0.),
+                    rltk::to_cp437('.'),
+                );
             }
             TileType::Wall => {
-                ctx.set(x, y, RGB::from_f32(0.0, 1.0, 0.0), RGB::from_f32(0., 0., 0.), rltk::to_cp437('#'));
+                ctx.set(
+                    x,
+                    y,
+                    RGB::from_f32(0.0, 1.0, 0.0),
+                    RGB::from_f32(0., 0., 0.),
+                    rltk::to_cp437('#'),
+                );
             }
         }
 
@@ -100,7 +111,9 @@ impl GameState for State {
         //ask ecs for read-access to read-only containers
         let positions = self.ecs.read_storage::<Position>();
         let renderables = self.ecs.read_storage::<Renderable>();
+        let map = self.ecs.fetch::<Vec<TileType>>();
 
+        draw_map(&map, ctx);
         for (pos, render) in (&positions, &renderables).join() {
             ctx.set(pos.x, pos.y, render.fg, render.bg, render.glyph);
         }
