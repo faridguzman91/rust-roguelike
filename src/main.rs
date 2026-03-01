@@ -5,6 +5,9 @@ use specs_derive::Component;
 mod map;
 pub use map::*;
 
+mod rect;
+pub use rect::*;
+
 #[derive(Component)]
 struct Position {
     x: i32,
