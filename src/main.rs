@@ -1,7 +1,6 @@
 use rltk::{GameState, RGB, Rltk, VirtualKeyCode};
 use specs::prelude::*;
 use specs_derive::Component;
-use std::cmp::{max, min};
 
 #[derive(Component)]
 struct Position {
@@ -123,10 +122,15 @@ impl GameState for State {
 fn try_move_player(delta_x: i32, delta_y: i32, ecs: &mut World) {
     let mut positions = ecs.write_storage::<Position>();
     let mut players = ecs.write_storage::<Player>();
+    let map = ecs.fetch::<Vec<TileType>>();
 
     for (_player, pos) in (&mut players, &mut positions).join() {
-        pos.x = (pos.x + delta_x).clamp(0, 79);
-        pos.y = (pos.y + delta_y).clamp(0, 49);
+        let destination_idx = xy_idx(pos.x + delta_x, pos.y + delta_y);
+
+        if map[destination_idx] != TileType::Wall {
+            pos.x = (pos.x + delta_x).clamp(0, 79);
+            pos.y = (pos.y + delta_y).clamp(0, 49);
+        }
     }
 }
 
@@ -175,6 +179,8 @@ fn main() -> rltk::BError {
     gs.ecs.register::<Renderable>();
     gs.ecs.register::<LeftMover>();
     gs.ecs.register::<Player>();
+
+    gs.ecs.insert(new_map());
 
     gs.ecs
         .create_entity()
