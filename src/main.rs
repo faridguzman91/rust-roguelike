@@ -13,11 +13,9 @@ use player::*;
 mod rect;
 pub use rect::*;
 
-
 struct State {
     ecs: World,
 }
-
 
 impl GameState for State {
     fn tick(&mut self, ctx: &mut Rltk) {
@@ -26,12 +24,11 @@ impl GameState for State {
         player_input(self, ctx);
         self.run_systems();
         //ask ecs for read-access to read-only containers
-        
+
         let map = self.ecs.fetch::<Vec<TileType>>();
         draw_map(&*map, ctx);
         let positions = self.ecs.read_storage::<Position>();
         let renderables = self.ecs.read_storage::<Renderable>();
-        
 
         for (pos, render) in (&positions, &renderables).join() {
             ctx.set(pos.x, pos.y, render.fg, render.bg, render.glyph);
@@ -71,6 +68,7 @@ fn main() -> rltk::BError {
     gs.ecs.register::<Renderable>();
     gs.ecs.register::<LeftMover>();
     gs.ecs.register::<Player>();
+    gs.ecs.register::<Viewshed>();
 
     let (rooms, map) = Map::new_map_rooms_and_corridors();
     gs.ecs.insert(map);
@@ -78,28 +76,35 @@ fn main() -> rltk::BError {
 
     gs.ecs
         .create_entity()
-        .with(Position { x: player_x, y: player_y })
+        .with(Position {
+            x: player_x,
+            y: player_y,
+        })
         .with(Renderable {
             glyph: rltk::to_cp437('@'),
             fg: RGB::named(rltk::YELLOW),
             bg: RGB::named(rltk::BLACK),
         })
         .with(Player {})
+        .with(Viewshed {
+            visible_tiles: Vec::new(),
+            range: 8,
+        })
         .build();
 
     // create entity with position and render with @ symbol in yellow on black
-    for i in 0..10 {
-        gs.ecs
-            .create_entity()
-            .with(Position { x: i * 7, y: 20 })
-            .with(Renderable {
-                glyph: rltk::to_cp437('@'),
-                fg: RGB::named(rltk::RED),
-                bg: RGB::named(rltk::BLACK),
-            })
-            .with(LeftMover {})
-            .build();
-    }
+    // for i in 0..10 {
+    //     gs.ecs
+    //         .create_entity()
+    //         .with(Position { x: i * 7, y: 20 })
+    //         .with(Renderable {
+    //             glyph: rltk::to_cp437('@'),
+    //             fg: RGB::named(rltk::RED),
+    //             bg: RGB::named(rltk::BLACK),
+    //         })
+    //         .with(LeftMover {})
+    //         .build();
+    // }
 
     rltk::main_loop(context, gs)
 }
