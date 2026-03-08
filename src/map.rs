@@ -1,5 +1,5 @@
 use super::Rect;
-use rltk::{RGB, RandomNumberGenerator, Rltk};
+use rltk::{Algorithm2D, BaseMap, Point, RGB, RandomNumberGenerator, Rltk};
 use std::cmp::{max, min};
 
 #[derive(PartialEq, Copy, Clone)]
@@ -17,6 +17,20 @@ pub struct Map {
 
 pub fn xy_idx(x: i32, y: i32) -> usize {
     (y as usize * 80) + x as usize
+}
+
+impl Algorithm2D for Map {
+    // rltk alternative for figuring out dimensions
+    fn dimensions(&self) -> Point {
+        Point::new(self.width, self.height)
+    }
+}
+
+impl BaseMap for Map {
+    //is_opaque returns true if tile is a a wall, false if not
+    fn is_opaque(&self, idx: usize) -> bool {
+        self.tiles[idx] == TileType::Wall
+    }
 }
 
 impl Map {
@@ -98,7 +112,6 @@ impl Map {
         (map.rooms, map.tiles)
     }
 }
-
 
 pub fn draw_map(map: &[TileType], ctx: &mut Rltk) {
     let mut y = 0;
